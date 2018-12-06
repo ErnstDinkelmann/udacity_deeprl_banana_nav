@@ -1,53 +1,83 @@
 This details the methodology used in evaluating and improving agent learning performance.
 
 
-#### Algorithm
-This agent implements the Deep Q Network (DQN) algorithm.  DQN combines off-policy training and bootstrapping from traditional Q-learning with function approximation using neural networks.  This makes if very effective at learning even in high dimensional continuous state spaces.  However this combination, referred to as the "Deadly Triad" by Richard Sutton, is known to have divergence issues where the agent does not converge on a policy but instead oscillates all over the place.
 
-To mitigate this, DQN also employs a couple modifications including Experience Replay and Fixed Q-targets.  Experience replay is a finite memory buffer of past experiences that the agent can sample from during learning.  Fixed-Q targets use a second neural network with weights that do not change as quickly as the online network and is used when calculating the TD target.   Both of these help stabilize converge but do not guarantee it.  More details are available in the original DQN [paper](https://deepmind.com/research/dqn/).
-
-
-#### DQN enhancements
-Since the DQN algorithm first came out several enhancements have been proposed.  A couple of those enhancements have been tried here including [Double DQN](https://arxiv.org/abs/1509.06461) and [Dueling networks](https://arxiv.org/abs/1511.06581).
-
-Double DQN leverages both the online network and the target network when calculating the predicted Q values in an effort to reduce overoptimistic estimations.
-Dueling networks separate estimation of the state value from the state dependent action advantage to better determine state value without having to explore all the associated actions.
-
-All four combinations were [tested](Results_Details.md) and results are shown below.  The results are the average number of episodes required to solve the environment over three different seeds.  The criteria for solving is considered to be an average score of +13 over 100 consecutive episodes.
+## Introduction
+This project uses a Deep Q Network (DQN) to train an agent to navigate a 3D environment, specifically a variant of the [Banana Collector](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector) environment.  This project is being done as part of the [Udacity Deep Reinforcement Learning Nanodegree](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893).
 
 
-|                  | DQN    |  Double DQN |
-|------------------|--------|-------------|
-| Standard Network | 192.3  | 246.6       |
-| Dueling Network  | 247.6  | 290         |
+
+## Algorithm
+This agent implements the Deep Q Network (DQN) algorithm, within the 'agent.py' file.
+
+DQN combines:
+
+* Off-policy training - agent learns from the experience of another agent with a different (e.g. more exploratory) policy, and
+* Bootstrapping - update estimates of the values of states based on estimates of the values of successor states, and
+* Function approximation - through a neural network (specified in the next section), learns a function that maps states to actions even for unseen states.
+
+This makes if very effective at learning even in high dimensional continuous state spaces.  However this combination, referred to as the "Deadly Triad" by Richard Sutton, is known to have divergence issues where the agent does not converge on a policy but instead oscillates all over the place.
+
+To mitigate this, DQN also employs a couple modifications, including:
+
+* Experience Replay - a finite memory buffer of past experiences that the agent can sample from during learning, and
+* Fixed (or rather slowly changing) Q-targets - use a second neural network with weights that do not change as quickly as the online network and is used when calculating the TD target.
+
+Both of these help stabilize converge but do not guarantee it.  More details are available in the original [DQN paper](https://deepmind.com/research/dqn/).
 
 
-Surprisingly it is clear that vanilla DQN, without any of the enhancements, is the best algorithm for this environment.  This may be due to the fact that Double DQN and Dueling Networks had the least impact amongst a variety of enhancements that were brought together in [Rainbow DQN](https://arxiv.org/abs/1710.02298).
+
+## Neural network model architecture
+The neural network is implemented in the 'model.py' file, using the PyTorch framework.
+
+The neural network model maps the state (input) to actions (output).  It consists of two fully connected hidden layers, each with 32 nodes and using relu activation.  Networks with two and three hidden layers were all tested and two was found to work best.  I tried 32 and 64 as the number of nodes in the hidden layers and 32 worked best.
 
 
-#### Neural network model
-The neural network model maps the state (input) to actions (output).  It consists of a two fully connected hidden layers, each with 32 nodes and using relu activation.  Networks with one, two and three hidden layers were all tested and two was found to work best.  The number of nodes in the hidden layers was tried with 16, 32 and 64, and 32 was found to work best.
+
+## Parameters
+The following parameters and settings were employed for the model ('model.py'):
+
+* Number of hidden layers in neural network: 2
+* Activation function: relu
+* Number of nodes in hidden layers: 32
 
 
-#### Epsilon
-Tweaking epsilon was the other hyperparameter that was found to improve learning speed.  An aggressive epsilon decay rate of 0.97 and a lower bound on epsilon of 0.001 both helped decrease the time needed to solve the environment.
+The following parameters and settings were employed for the agent ('agent.py'):
+
+* Size of the replay buffer: 1e9
+* Mini-batch size: 64
+* Gamma discount factor: 0.99
+* Tau (soft update of target network): 1e-3 (this means we adjust the weights slowly towards the target, although it is not completely fixed)
+* Learning rate: 5e-4
+* Number of experiences before a learning update is run: 4
+
+The following parameters and settings were employed for the main training loop ('main.py'):
+
+* Maximum number of episodes: 1000 (although one can interrupt execution after a score of 13 is achieved)
+* Maximum number of steps per episode: 300 (this is the same as environment maximum, bit it could be reduced in experimentation)
+* Epsilon (percentage exploration): eps = max(eps_end, eps_decay * eps_previous), where
+    * eps starts at: 1.0
+    * eps_end = 0.01 (this could potentially be reduced for better results)
+    * eps_decay = 0.995
+
+Many of these parameters could potentially be adjusted for improved performance.
 
 
-#### Metrics
-See the graphs below for an example of a typical training run.  There are three pairs of graphs: reward, loss and entropy.
 
-- Score (reward) can be seen to be consistently increasing over time.  This is the best indication that the agent is learning.
-- Loss is increasing over time due to the policy constantly changing.  This is fairly typical with DQN, if training is run long enough loss should decrease again.
-- Entropy is decreasing over time.  Entropy is a measure of how certain the agent is of its predictions.  Ideally entropy decreases as rewards increase.
+## Results
+The graph below shows the Score (average total reward over the previous 100 episodes maximum). This results file 'training_score_by_episode.png' is created after the Maximum number of episodes (1000) are completed.
+![training_score_by_episode](training_score_by_episode.png)
 
-Results vary depending on the seed but typically the agent is able to solve the environment in 150 - 250 episodes.
+Results will vary depending on the seed, but typically the agent is able to solve the environment in 400 - 550 episodes. The Score stabalises at a score of 16 eventually.
 
-![results](assets/results.png)
+The saved 'checkpoint.pth' file contains the weights of a model that solved the environment in 450 episodes.
 
 
-#### Future enhancements
-There are plenty more things could be tried to further improve performance, such as:
 
-- Some of the more effective DQN modification cited in the Rainbow DQN paper, like Prioritized Experience Replay and Multi-step Learning.
-- A more systematic exploration of the various hyperparameters, especially the different combinations of neural network models and epsilon decay.
-- Trying different loss functions, optimizers and learning rate.
+## Potential Improvements
+There are plenty more things which could be tried to further improve performance, such as:
+
+* Systematic hyperparameter optimisation, especially the neural network architecture combined with learning rate.
+* Trying different loss functions, optimizers and learning rate.
+* Double DQN or Duelling DQN
+* Some of the more effective DQN modifications cited in the Rainbow DQN paper, like Prioritized Experience Replay and Multi-step Learning.

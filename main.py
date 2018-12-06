@@ -38,7 +38,7 @@ def train(n_episodes=1000, max_n_steps=300, eps_start=1.0, eps_end=0.01, eps_dec
     scores = []  # list containing scores from each episode
     scores_window = deque(maxlen=100)  # last 100 scores
     eps = eps_start  # initialize epsilon
-    num_saves=0
+    num_saves = 0
     for i_episode in range(1, n_episodes + 1):
         env_info = env.reset(train_mode=True)[brain_name]  # reset the environment
         state = env_info.vector_observations[0]  # get the current state
@@ -62,15 +62,15 @@ def train(n_episodes=1000, max_n_steps=300, eps_start=1.0, eps_end=0.01, eps_dec
         print('\rEpisode {}\tNum steps: {}\tAverage Score: {:.2f}'.format(i_episode, last_t, np.mean(scores_window)))
         # if i_episode % 100 == 0:
         #     print('\rEpisode {}\tAverage Score: {:.2f}'.format(i_episode, np.mean(scores_window)))
-        if np.mean(scores_window) >= 13:
+        if np.mean(scores_window) >= 13:  # win condition in course
             if num_saves == 0:
                 print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode - 100, np.mean(scores_window)))
                 print('\nTraining will continue and the checkpoint will be overwritten every 100 episodes')
-                print('\nSaving a checkpoint now')
+                print('\nSaving a checkpoint now, you may interrupt code execution with eg Ctrl+C')
                 torch.save(agent.qnetwork_local.state_dict(), strCheckpointFile)
             else:
                 if i_episode % 100 == 0:
-                    print('\nSaving another checkpoint now, you may interrupt code execution')
+                    print('\nSaving another checkpoint now, you may interrupt code execution with eg Ctrl+C')
                     torch.save(agent.qnetwork_local.state_dict(), strCheckpointFile)
             num_saves += 1
 
@@ -130,7 +130,7 @@ if __name__ == '__main__':
     # args = parser.parse_args('--mode train'.split())
 
     # Automatic detection of the directory within which this py file is located will only work if the py file is
-    # exectued from command line. When executed within a console within an IDE for example, the context is different
+    # executed from command line. When executed within a console within an IDE for example, the context is different
     # In that case, just manually specify the strHomeDir as the full absolute directory within which this py file
     # is located.
     strHomeDir = str(os.path.dirname(os.path.abspath(inspect.getfile(inspect.currentframe())))) + '/'
@@ -168,7 +168,8 @@ if __name__ == '__main__':
         )
 
         # Environments contain **_brains_** which are responsible for deciding the actions of their associated agents.
-        # Here we check for the first brain available, and set it as the default brain we will be controlling from Python.
+        # Here we check for the first brain available, and set it as the default brain we will be controlling from
+        # Python.
         brain_name = env.brain_names[0]
         brain = env.brains[brain_name]
 
@@ -179,7 +180,7 @@ if __name__ == '__main__':
         scores = train(strCheckpointFile=strCheckpointFile)
 
     elif args.mode == 'view':
-        print('--mode train initiated')
+        print('--mode view initiated')
 
         # Start the environment.
         # In the case of viewing, this is set with no_graphics=False to see visual gui elements.

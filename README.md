@@ -6,7 +6,6 @@
 This project uses a Deep Q Network (DQN) to train an agent to navigate a 3D environment, specifically a variant of the [Banana Collector](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector) environment.  This project is being done as part of the [Udacity Deep Reinforcement Learning Nanodegree](https://www.udacity.com/course/deep-reinforcement-learning-nanodegree--nd893)..
 
 
-
 ## Environment
 This environment is a simplified version of the [ML Agents](https://github.com/Unity-Technologies/ml-agents/blob/master/docs/Learning-Environment-Examples.md#banana-collector) example one.  It has a single agent, a smaller state space and a discrete action space.  The environment is a open 3D space that the agent will need to navigate.
 
@@ -75,21 +74,21 @@ This is a short description of the files in the repo (that comes with the repo) 
 
 * main.py: the main file containing high-level training function as well as a function for viewing a trained agent. Note that the directory of this file is used as a parameter in the code. If you are not executing from the command line, you may need to make adjustments to the code. This is the file that will be run from the command line as follows:
 
-    * To train the agent: 'python main.py --mode train' or, since training is the default behaviour anyways, 'python main.py' will also work just fine.
-    * To view a trained agent: 'python main.py --mode view'.
+    * To train the agent: `python main.py --mode train` or, since training is the default behaviour anyways, `python main.py` will also work just fine.
+    * To view a trained agent: `python main.py --mode view`.
 
 * agent.py: contains the Agent class, which controls our agents interaction and learning with/from the environment. This agent specifically learns the states -> action_value function as a neural network specified in the model.py file.
 
 * model.py: contains the nueral network set up in pytorch.
 
-* checkpoint.pth: contains the saved weights of the specified neural network, for an already traind agent that achieved the requisite performance to "solve" the environment.
+* checkpoint.pth: contains the saved weights of the specified neural network, for an already trained agent that achieved the requisite performance to "solve" the environment.
 
 
 
 ## Train the agent
-To train the agent: 'python main.py --mode train' or, since training is the default behaviour anyways, 'python main.py' will also work just fine.
+To train the agent: `python main.py --mode train` or, since training is the default behaviour, `python main.py` will also work just fine.
 
-This will fire up the Unity environment and output live training statistics to the command line.  When training is finished you'll have a saved model in `checkpoint.pth` and see some graphs that help visualize the agent's learning progress.
+This will fire up the Unity environment and output live training statistics to the command line.  When training is finished you'll have a saved model in 'checkpoint.pth' and see some graphs that help visualize the agent's learning progress.
 
 Note the 'checkpoint.pth' file is saved once a score of 13 or greater is achieved, but also every 100 episodes from there. A total of 1000 eposides is run by default. But once the file has been saved, you an safely interrupt the code and move the viewing the agent perform.
 
@@ -98,10 +97,10 @@ Feel free to experiment with modifying the hyperparameters to see how it affects
 
 
 ## View the trained agent perform
-To view a trained agent: 'python main.py --mode view'.
+To view a trained agent: `python main.py --mode view`.
 This will load the saved weights from a checkpoint file.  A previously trained model is included in this repo.
 
 
 
 ## Report
-See the [report](Report.md) for more insight on how I arrived at the current hyperparameters.  
+See the [report](Report.md) for more insight on how I arrived at the current hyperparameters.

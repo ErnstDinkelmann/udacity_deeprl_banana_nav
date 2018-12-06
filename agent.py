@@ -9,7 +9,7 @@ import torch.nn.functional as F
 import torch.optim as optim
 
 BUFFER_SIZE = int(1e9)  # replay buffer size  # int(1e5)
-BATCH_SIZE = 64        # minibatch size  # 64
+BATCH_SIZE = 64         # minibatch size  # 64
 GAMMA = 0.99            # discount factor
 TAU = 1e-3              # for soft update of target parameters
 LR = 5e-4               # learning rate 
@@ -68,7 +68,7 @@ class Agent:
         state = torch.from_numpy(state).float().unsqueeze(0).to(device)
         self.qnetwork_local.eval()
         with torch.no_grad():
-            action_values = self.qnetwork_local(state)
+            action_values = self.qnetwork_local(state)  # same as .forward(state)
         self.qnetwork_local.train()
 
         # Epsilon-greedy action selection
@@ -85,7 +85,7 @@ class Agent:
             experiences (Tuple[torch.Tensor]): tuple of (s, a, r, s', done) tuples 
             gamma (float): discount factor
         """
-        states, actions, rewards, next_states, dones = experiences  # these are already tensors
+        states, actions, rewards, next_states, dones = experiences  # these are already tensors <= converted when sampling from buffer
 
         # Calculate Q-target
         self.qnetwork_target.eval()
@@ -95,7 +95,7 @@ class Agent:
             Q_targets = rewards.squeeze() + gamma * Q_targets
         self.qnetwork_target.train()
 
-        # Calcuate Q-expected
+        # Calculate Q-expected
         self.qnetwork_local.eval()
         Q_expected = (self.qnetwork_local(states).gather(1, actions)).squeeze(1).to(device)  # Q_Value at the actual current state and action taken
         self.qnetwork_local.train()
